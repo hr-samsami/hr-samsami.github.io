@@ -1,0 +1,87 @@
+/* Rules and factors sections in event cards */
+
+.event-rules-section {
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.event-rules-title {
+  color: #f8fafc;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.event-rules-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.event-rules-list li {
+  color: #d1d5db;
+  font-size: 12px;
+  line-height: 1.6;
+  padding-left: 16px;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.event-rules-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #6b7280;
+}
+
+/* Success/Failure Factors */
+.factors-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.factors-box {
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.factors-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.factors-title.success { color: #22c55e; }
+.factors-title.failure { color: #ef4444; }
+
+.factors-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.factors-list li {
+  font-size: 11px;
+  line-height: 1.5;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.factors-list li.success { color: #86efac; }
+.factors-list li.failure { color: #fca5a5; }
+
+.factors-list .factor-icon {
+  flex-shrink: 0;
+  font-size: 12px;
+}

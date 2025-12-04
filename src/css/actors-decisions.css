@@ -1,0 +1,133 @@
+/* Actor selection and decision card styles */
+
+.actors-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.actor-pill {
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: center;
+  min-width: 120px;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.actors-chooser {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.actor-button {
+  position: relative;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border-width: 2px;
+  border-style: solid;
+  background: #fff;
+  min-width: 70px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.actor-button .actor-id {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.actor-selected-check {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--color-success);
+  color: #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selected-actor-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.selected-actor-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.selected-actor-name {
+  margin: 0;
+  font-size: 16px;
+}
+
+.selected-actor-desc {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Decision cards */
+.decision-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.decision-card {
+  border-radius: 8px;
+  border-width: 2px;
+  border-style: solid;
+  background: #fff;
+  padding: 12px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.decision-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.decision-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.decision-risk {
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.decision-desc {
+  margin: 0 0 8px 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.decision-effects {
+  display: flex;
+  gap: 8px;
+  font-size: 10px;
+}
+
+.process-round {
+  margin-top: 16px;
+  text-align: center;
+}

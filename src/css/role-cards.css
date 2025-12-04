@@ -1,0 +1,225 @@
+/* Role Cards Styles - Matching Image Layout */
+
+.role-cards-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.role-cards-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #1f2937;
+}
+
+.role-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 1200px) {
+  .role-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .role-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.role-card {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.role-card-header {
+  padding: 12px 16px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.role-card-header .role-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.role-card-header .role-title-wrap {
+  flex: 1;
+}
+
+.role-card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-card-header .role-subtitle {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+.role-card-body {
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #fff;
+}
+
+/* Three column layout for responsibilities, strengths, weaknesses */
+.role-three-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
+}
+
+.role-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.role-column-title {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #374151;
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.role-column-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.role-column-item {
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+/* Bottom section with funding power and influence */
+.role-bottom-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.role-funding-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.role-funding-title {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #374151;
+  letter-spacing: 0.3px;
+}
+
+.role-funding-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.role-funding-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.role-funding-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  min-width: 55px;
+}
+
+.role-funding-track {
+  flex: 1;
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid #d1d5db;
+}
+
+.role-funding-fill {
+  height: 100%;
+  border-radius: 1px;
+}
+
+/* Influence gauge section */
+.role-influence-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.role-influence-title {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #374151;
+  letter-spacing: 0.3px;
+}
+
+.role-influence-gauge {
+  width: 70px;
+  height: 40px;
+  position: relative;
+}
+
+.role-influence-gauge svg {
+  width: 100%;
+  height: 100%;
+}
+
+.role-cards-back-button {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.role-cards-close-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.role-cards-close-btn:hover {
+  background: #2563eb;
+}

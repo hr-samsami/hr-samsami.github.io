@@ -1,0 +1,67 @@
+/* Round results and history styles */
+
+.round-results-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.round-results-title {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.round-decisions-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.round-chip {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.round-esi-summary {
+  margin-bottom: 16px;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.round-esi-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.round-esi-value {
+  font-size: 40px;
+  font-weight: 800;
+}
+
+.round-esi-status {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* History */
+.history-list {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.history-item {
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+
+.history-round {
+  font-weight: 600;
+}

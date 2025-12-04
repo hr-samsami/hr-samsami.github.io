@@ -1,0 +1,118 @@
+/* Event card styles - New dark themed cards */
+
+.new-event-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.new-event-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.new-event-header.event-red {
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+}
+
+.new-event-header.event-orange {
+  background: linear-gradient(135deg, #ea580c, #c2410c);
+}
+
+.new-event-star {
+  color: #fbbf24;
+  font-size: 24px;
+}
+
+.new-event-title {
+  flex: 1;
+}
+
+.new-event-title h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.new-event-title .subtitle {
+  color: rgba(255,255,255,0.9);
+  font-size: 14px;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.new-event-body {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .new-event-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.new-event-left, .new-event-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Legacy event card styles */
+.event-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.event-badge {
+  border-radius: 10px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+.event-type-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.event-title {
+  margin: 0;
+  font-size: 18px;
+  color: #1f2937;
+}
+
+.event-desc {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 0 0 10px 0;
+}
+
+.event-effects {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+}

@@ -1,0 +1,14 @@
+/* Side column styles */
+
+.side-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.side-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}

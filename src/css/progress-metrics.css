@@ -1,0 +1,114 @@
+/* Progress tracker and metrics */
+
+.progress-tracker {
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 16px;
+}
+
+.progress-title {
+  color: #f8fafc;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.progress-bar-container {
+  background: rgba(0,0,0,0.4);
+  border-radius: 8px;
+  height: 24px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 8px;
+  transition: width 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-bar-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.progress-label {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+/* Metric bars for sidebar */
+.metric-bar {
+  margin-bottom: 10px;
+}
+
+.metric-bar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+
+.metric-bar-label {
+  color: var(--text-secondary);
+}
+
+.metric-bar-value {
+  font-weight: 700;
+}
+
+.metric-bar-track {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.metric-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+
+/* ESI Summary */
+.esi-summary {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.esi-summary-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.esi-summary-value {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.esi-summary-status {
+  font-size: 11px;
+  font-weight: 600;
+}
