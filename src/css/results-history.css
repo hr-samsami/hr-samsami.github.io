@@ -49,6 +49,125 @@
   font-weight: 600;
 }
 
+/* System Summary - Results Analysis Section */
+.system-summary {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 16px;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.summary-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.summary-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.summary-item.positive {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.summary-item.warning {
+  background: #fefce8;
+  border-color: #fef08a;
+}
+
+.summary-item.negative {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.summary-item-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.summary-item-text {
+  flex: 1;
+}
+
+.summary-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.summary-item-desc {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* Actor Contributions in Summary */
+.actor-contributions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.actor-contribution {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.actor-contribution-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.actor-contribution-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.actor-contribution-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actor-contribution-decision {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
 /* History */
 .history-list {
   max-height: 250px;

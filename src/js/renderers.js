@@ -1,12 +1,171 @@
 // Rendering functions for the game UI
 import { ACTORS, ROLE_CARDS } from './data/actors.js';
-import { EVENT_CARDS } from './data/events.js';
-import { DECISION_CARDS } from './data/decisions.js';
-import { getSeverityColor, getDecisionTypeColor, calcESI, getESIStatus, clampHealth } from './helpers.js';
+import { AVAILABLE_DECKS, getCurrentDeck, getCurrentDeckId } from './data/decisions.js';
+import { clampHealth, calculateSystemHealth } from './helpers.js';
 
-// Get event-specific decisions
-function getEventDecisions(round) {
-  return round === 1 ? DECISION_CARDS.event1 : DECISION_CARDS.event2;
+// Render event title bar (clickable, for results page)
+function renderEventTitleBar(event, round) {
+  const colorClass = round === 1 ? 'event-red' : 'event-orange';
+  const icon = round === 1 ? '⚡' : '💰';
+
+  return `
+    <div class="event-title-bar ${colorClass}" data-action="show-event-modal" data-round="${round}">
+      <div class="event-title-info">
+        <div class="event-title-icon">${icon}</div>
+        <div class="event-title-text">
+          <h3>EVENT ${round}: ${event.title}</h3>
+          <p>"${event.subtitle}"</p>
+        </div>
+      </div>
+      <div class="event-title-expand">
+        <span>View Details</span>
+        <span>→</span>
+      </div>
+    </div>
+  `;
+}
+
+// Generate summary analysis based on decisions
+function generateSummaryAnalysis(selectedDecisions, systemHealth, round) {
+  const summaryItems = [];
+
+  // Analyze decisions by type
+  const redDecisions = Object.entries(selectedDecisions).filter(([, d]) => d.type.toLowerCase() === 'red');
+  const yellowDecisions = Object.entries(selectedDecisions).filter(([, d]) => d.type.toLowerCase() === 'yellow');
+  const greenDecisions = Object.entries(selectedDecisions).filter(([, d]) => d.type.toLowerCase() === 'green');
+
+  // Main status explanation
+  if (systemHealth.status === 'red') {
+    summaryItems.push({
+      type: 'negative',
+      icon: '🚫',
+      title: 'System Collapsed: Too Many Blockers',
+      desc: `${redDecisions.length} actors chose "Wait & See" or blocking decisions. When 2 or more actors refuse to commit, the ecosystem cannot function.`
+    });
+
+    // List who blocked
+    if (redDecisions.length > 0) {
+      const blockers = redDecisions.map(([actorId]) => `${ACTORS[actorId].icon} ${ACTORS[actorId].name}`).join(', ');
+      summaryItems.push({
+        type: 'negative',
+        icon: '⛔',
+        title: 'Blocking Actors',
+        desc: `${blockers} chose not to invest or collaborate, breaking critical ecosystem flows.`
+      });
+    }
+  } else if (systemHealth.status === 'yellow') {
+    summaryItems.push({
+      type: 'warning',
+      icon: '⚠️',
+      title: 'System Fragile: Insufficient Commitment',
+      desc: `The ecosystem is unstable. While not collapsed, there aren't enough strong "Invest" decisions to create sustainable flows.`
+    });
+
+    if (yellowDecisions.length > 0) {
+      summaryItems.push({
+        type: 'warning',
+        icon: '🤝',
+        title: 'Conditional Collaborators',
+        desc: `${yellowDecisions.length} actors chose "Collaborate" - they're willing to participate but only under certain conditions. This creates dependencies and fragility.`
+      });
+    }
+  } else {
+    summaryItems.push({
+      type: 'positive',
+      icon: '✅',
+      title: 'System Sustainable: Strong Investment',
+      desc: `Majority of actors chose to invest strongly. The ecosystem has enough commitment to function reliably.`
+    });
+
+    if (greenDecisions.length > 0) {
+      const investors = greenDecisions.map(([actorId]) => `${ACTORS[actorId].icon} ${ACTORS[actorId].name}`).join(', ');
+      summaryItems.push({
+        type: 'positive',
+        icon: '💪',
+        title: 'Strong Contributors',
+        desc: `${investors} made strong investment decisions, providing the foundation for ecosystem stability.`
+      });
+    }
+  }
+
+  // Round-specific insights
+  if (round === 1) {
+    summaryItems.push({
+      type: systemHealth.status === 'red' ? 'negative' : (systemHealth.status === 'yellow' ? 'warning' : 'positive'),
+      icon: '👷',
+      title: 'Workforce Flow Impact',
+      desc: systemHealth.status === 'red'
+        ? 'The labor pipeline is broken. Training and hiring cannot proceed without coordinated commitment from employers, educators, and the intermediary.'
+        : systemHealth.status === 'yellow'
+        ? 'The labor pipeline is constrained. Conditional agreements mean workers may fall through the cracks.'
+        : 'The labor pipeline is healthy. Workers can flow from training to employment with strong support.'
+    });
+  } else {
+    summaryItems.push({
+      type: systemHealth.status === 'red' ? 'negative' : (systemHealth.status === 'yellow' ? 'warning' : 'positive'),
+      icon: '💵',
+      title: 'Funding Sustainability',
+      desc: systemHealth.status === 'red'
+        ? 'No structural funding secured. The system remains dependent on temporary project subsidies that will eventually end.'
+        : systemHealth.status === 'yellow'
+        ? 'Partial funding secured, but still reliant on temporary sources. Long-term sustainability unclear.'
+        : 'Strong structural funding commitments. The ecosystem can sustain itself beyond project timelines.'
+    });
+  }
+
+  return summaryItems;
+}
+
+// Render the summary section
+function renderSummarySection(selectedDecisions, systemHealth, round) {
+  const summaryItems = generateSummaryAnalysis(selectedDecisions, systemHealth, round);
+  const colorEmoji = { green: '🟢', yellow: '🟡', red: '🔴' };
+
+  return `
+    <div class="system-summary">
+      <div class="summary-header">
+        <span style="font-size: 24px;">📋</span>
+        <h3>Analysis: Why is the system ${systemHealth.label}?</h3>
+      </div>
+      <div class="summary-content">
+        ${summaryItems.map(item => `
+          <div class="summary-item ${item.type}">
+            <div class="summary-item-icon">${item.icon}</div>
+            <div class="summary-item-text">
+              <div class="summary-item-title">${item.title}</div>
+              <div class="summary-item-desc">${item.desc}</div>
+            </div>
+          </div>
+        `).join('')}
+
+        <!-- Actor decisions breakdown -->
+        <div class="summary-item">
+          <div class="summary-item-icon">👥</div>
+          <div class="summary-item-text">
+            <div class="summary-item-title">Individual Actor Decisions</div>
+            <div class="actor-contributions">
+              ${Object.entries(selectedDecisions).map(([actorId, d]) => {
+                const actor = ACTORS[actorId];
+                const cardColor = d.type.toLowerCase();
+                const emoji = colorEmoji[cardColor] || '⚪';
+                return `
+                  <div class="actor-contribution">
+                    <div class="actor-contribution-icon">${actor.icon}</div>
+                    <div class="actor-contribution-info">
+                      <div class="actor-contribution-name">${actor.name}</div>
+                      <div class="actor-contribution-decision">
+                        ${emoji} ${d.title}
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 // Render ecosystem health bar
@@ -263,11 +422,11 @@ function getInfluenceLevel(influence) {
   return 30;
 }
 
-// Render role card
+// Render role card (full version for modal)
 export function renderRoleCard(role) {
   const fundingStructuralPercent = Math.min(100, role.fundingPower.structural);
   const fundingTemporaryPercent = Math.min(100, role.fundingPower.temporary);
-  
+
   return `
     <div class="role-card">
       <div class="role-card-header" style="background: ${role.color}">
@@ -328,15 +487,81 @@ export function renderRoleCard(role) {
   `;
 }
 
+// Render clickable role card (full version for setup screen, opens modal on click)
+function renderRoleCardClickable(role) {
+  const fundingStructuralPercent = Math.min(100, role.fundingPower.structural);
+  const fundingTemporaryPercent = Math.min(100, role.fundingPower.temporary);
+
+  return `
+    <div class="role-card role-card-clickable" data-action="show-role-modal" data-role-id="${role.id}">
+      <div class="role-card-header" style="background: ${role.color}">
+        <div class="role-icon">${role.icon}</div>
+        <div class="role-title-wrap">
+          <h3>${role.name}</h3>
+          <div class="role-subtitle">(${role.subtitle})</div>
+        </div>
+      </div>
+      <div class="role-card-body">
+        <div class="role-three-columns">
+          <div class="role-column">
+            <div class="role-column-title">Responsibilities</div>
+            <div class="role-column-list">
+              ${role.responsibilities.map(r => `<div class="role-column-item">• ${r}</div>`).join("")}
+            </div>
+          </div>
+          <div class="role-column">
+            <div class="role-column-title">Strengths</div>
+            <div class="role-column-list">
+              ${role.strengths.map(s => `<div class="role-column-item">• ${s}</div>`).join("")}
+            </div>
+          </div>
+          <div class="role-column">
+            <div class="role-column-title">Weaknesses</div>
+            <div class="role-column-list">
+              ${role.weaknesses.map(w => `<div class="role-column-item">• ${w}</div>`).join("")}
+            </div>
+          </div>
+        </div>
+        <div class="role-bottom-section">
+          <div class="role-funding-section">
+            <div class="role-funding-title">Funding Power</div>
+            <div class="role-funding-bars">
+              <div class="role-funding-bar">
+                <span class="role-funding-label">Structural</span>
+                <div class="role-funding-track">
+                  <div class="role-funding-fill" style="width: ${fundingStructuralPercent}%; background: ${role.color}"></div>
+                </div>
+              </div>
+              <div class="role-funding-bar">
+                <span class="role-funding-label">Temporary</span>
+                <div class="role-funding-track">
+                  <div class="role-funding-fill" style="width: ${fundingTemporaryPercent}%; background: ${role.color}"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="role-influence-section">
+            <div class="role-influence-title">Influence</div>
+            <div class="role-influence-gauge">
+              ${renderInfluenceGauge(role)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 // Render main game screen
 export function renderMainScreen(state) {
-  const { round, ecosystemHealth, currentEvent, selectedDecisions, selectedActor, showResults, history, workersPlaced, structuralFund, MAX_ROUNDS } = state;
-  
-  const esi = ecosystemHealth;
-  const esiStatus = getESIStatus(esi);
+  const { round, currentEvent, selectedDecisions, selectedActor, showResults, workersPlaced, structuralFund, lastSystemHealth, shuffledDecisions, MAX_ROUNDS } = state;
+
+  // Use lastSystemHealth if available (after first round), otherwise show neutral
+  const headerStatus = lastSystemHealth
+    ? { label: lastSystemHealth.label, color: lastSystemHealth.color }
+    : { label: 'Starting', color: '#6b7280' };
   const selectedCount = Object.keys(selectedDecisions).length;
   const processDisabled = selectedCount < 5;
-  const eventDecisions = getEventDecisions(round);
 
   // EVENT CARD
   let eventSection = "";
@@ -379,7 +604,7 @@ export function renderMainScreen(state) {
 
     if (selectedActor) {
       const actor = ACTORS[selectedActor];
-      const decisions = eventDecisions[selectedActor];
+      const decisions = shuffledDecisions[selectedActor] || [];
       const currentSelected = selectedDecisions[selectedActor];
 
       eventSection += `
@@ -399,16 +624,6 @@ export function renderMainScreen(state) {
                 const selected = currentSelected && currentSelected.id === d.id;
                 const borderColor = selected ? actor.color : "#E5E7EB";
                 const bgColor = selected ? `${actor.color}10` : "#FFFFFF";
-                const typeColor = getDecisionTypeColor(d.type);
-
-                const impact = d.impact || {};
-                let metricHtml = "";
-                if (round === 1 && (impact.workersPlaced > 0 || impact.trainingCapacity > 0)) {
-                  const workers = impact.workersPlaced || impact.trainingCapacity || 0;
-                  metricHtml = `<span style="background:#22c55e20; color:#16a34a; padding:2px 6px; border-radius:4px; font-size:10px;">+${workers} workers</span>`;
-                } else if (round === 2 && impact.structuralContribution > 0) {
-                  metricHtml = `<span style="background:#3b82f620; color:#2563eb; padding:2px 6px; border-radius:4px; font-size:10px;">+${impact.structuralContribution} tokens</span>`;
-                }
 
                 return `
                   <button
@@ -420,18 +635,8 @@ export function renderMainScreen(state) {
                   >
                     <div class="decision-header">
                       <span class="decision-title">${d.title}</span>
-                      <span
-                        class="decision-risk"
-                        style="background:${typeColor}20; color:${typeColor};"
-                      >
-                        ${d.type}
-                      </span>
                     </div>
                     <p class="decision-desc">${d.description}</p>
-                    <div class="decision-effects">
-                      ${metricHtml}
-                      ${impact.flowBlocked ? `<span style="background:#ef444420; color:#dc2626; padding:2px 6px; border-radius:4px; font-size:10px;">⚠️ Blocks flow</span>` : ""}
-                    </div>
                   </button>
                 `;
               })
@@ -454,65 +659,56 @@ export function renderMainScreen(state) {
       </div>
     `;
   } else {
-    // Round results
-    const lastHistory = history[history.length - 1];
-    const success = lastHistory?.success;
-    
-    let resultMetric = "";
-    if (round === 1) {
-      resultMetric = `
-        <div style="margin-bottom: 16px;">
-          <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">Workers Placed</div>
-          <div style="font-size: 48px; font-weight: 800; color: ${workersPlaced >= 25 ? '#22c55e' : '#ef4444'};">
-            ${workersPlaced} / 30
-          </div>
-          <div style="font-size: 14px; color: ${workersPlaced >= 25 ? '#22c55e' : '#ef4444'};">
-            ${workersPlaced >= 25 ? '✅ Goal Achieved (25+ workers)' : '❌ Goal Not Met (needed 25)'}
-          </div>
-        </div>
-      `;
-    } else {
-      resultMetric = `
-        <div style="margin-bottom: 16px;">
-          <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">Structural Fund</div>
-          <div style="font-size: 48px; font-weight: 800; color: ${structuralFund >= 20 ? '#22c55e' : '#ef4444'};">
-            ${structuralFund} / 20
-          </div>
-          <div style="font-size: 14px; color: ${structuralFund >= 20 ? '#22c55e' : '#ef4444'};">
-            ${structuralFund >= 20 ? '✅ Goal Achieved (20+ tokens)' : '❌ Goal Not Met (needed 20)'}
-          </div>
-        </div>
-      `;
-    }
+    // Round results - Calculate system health based on card colors
+    const systemHealth = calculateSystemHealth(selectedDecisions);
+
+    // Replace full event card with clickable title bar
+    eventSection = renderEventTitleBar(currentEvent, round);
 
     eventSection += `
       <div class="round-results-card">
         <h3 class="round-results-title">📊 Round ${round} Results</h3>
-        <div class="round-decisions-chips">
-          ${Object.entries(selectedDecisions)
-            .map(([actorId, d]) => {
-              const actor = ACTORS[actorId];
-              return `
-                <span
-                  class="round-chip"
-                  style="background:${actor.color}20; color:${actor.color};"
-                >
-                  ${actor.icon} ${d.title}
-                </span>
-              `;
-            })
-            .join("")}
-        </div>
+
+        <!-- System Health Display -->
         <div
           class="round-esi-summary"
-          style="background:${success ? '#22c55e15' : '#ef444415'}; border-color:${success ? '#22c55e' : '#ef4444'}; padding:24px;"
+          style="background:${systemHealth.color}15; border: 3px solid ${systemHealth.color}; padding:24px;"
         >
-          ${resultMetric}
-          <div style="font-size: 24px; margin-top: 12px;">
-            ${success ? '🎉 Round Success!' : '💥 Round Failed'}
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">Ecosystem Status</div>
+            <div style="font-size: 64px; font-weight: 800; color: ${systemHealth.color};">
+              ${systemHealth.status === 'green' ? '🟢' : systemHealth.status === 'yellow' ? '🟡' : '🔴'}
+            </div>
+            <div style="font-size: 32px; font-weight: 700; color: ${systemHealth.color}; margin-top: 8px;">
+              ${systemHealth.label}
+            </div>
           </div>
+
+          <!-- Color breakdown -->
+          <div style="display: flex; justify-content: center; gap: 24px; margin-top: 16px; padding: 12px; background: #f9fafb; border-radius: 8px;">
+            <div style="text-align: center;">
+              <div style="font-size: 24px;">🟢</div>
+              <div style="font-size: 20px; font-weight: 700; color: #28a745;">${systemHealth.counts.green}</div>
+              <div style="font-size: 11px; color: #6b7280;">Invest</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 24px;">🟡</div>
+              <div style="font-size: 20px; font-weight: 700; color: #ffc107;">${systemHealth.counts.yellow}</div>
+              <div style="font-size: 11px; color: #6b7280;">Collaborate</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 24px;">🔴</div>
+              <div style="font-size: 20px; font-weight: 700; color: #dc3545;">${systemHealth.counts.red}</div>
+              <div style="font-size: 11px; color: #6b7280;">Wait/Block</div>
+            </div>
+          </div>
+
         </div>
-        <div style="text-align:center;">
+
+        <!-- Summary Analysis Section -->
+        ${renderSummarySection(selectedDecisions, systemHealth, round)}
+
+        <div style="text-align:center; margin-top: 20px;">
           <button class="btn btn-success" data-action="next-round">
             ${round >= MAX_ROUNDS ? "🏆 See Final Results" : "➡️ Next Event"}
           </button>
@@ -521,7 +717,11 @@ export function renderMainScreen(state) {
     `;
   }
 
-  // Header
+  // Header - shows ecosystem status based on last round's color calculation
+  const statusEmoji = lastSystemHealth
+    ? (lastSystemHealth.status === 'green' ? '🟢' : lastSystemHealth.status === 'yellow' ? '🟡' : '🔴')
+    : '⚪';
+
   const header = `
     <div class="header">
       <div class="header-inner">
@@ -530,13 +730,14 @@ export function renderMainScreen(state) {
           <p class="header-round">Round ${round}/${MAX_ROUNDS} — ${currentEvent?.title || ""}</p>
         </div>
         <div class="header-metrics">
-          <div style="text-align:center; background:${esiStatus.color}20; padding:8px 16px; border-radius:8px;">
-            <div class="header-esi-label" style="font-size:11px; color:#6b7280;">Status</div>
+          <div style="text-align:center; background:${headerStatus.color}20; padding:8px 16px; border-radius:8px;">
+            <div class="header-esi-label" style="font-size:11px; color:#6b7280;">Ecosystem Status</div>
             <div
               class="header-esi-value"
-              style="color:${esiStatus.color}; font-size:20px;"
+              style="color:${headerStatus.color}; font-size:20px; display:flex; align-items:center; justify-content:center; gap:6px;"
             >
-              ${esiStatus.label}
+              <span>${statusEmoji}</span>
+              <span>${headerStatus.label}</span>
             </div>
           </div>
         </div>
@@ -554,6 +755,33 @@ export function renderMainScreen(state) {
 
 // Render setup screen
 export function renderSetupScreen() {
+  const currentDeckId = getCurrentDeckId();
+  const currentDeck = getCurrentDeck();
+
+  // Build deck selector options
+  const deckOptions = Object.entries(AVAILABLE_DECKS).map(([id, deck]) => {
+    const isSelected = id === currentDeckId;
+    return `
+      <button
+        class="deck-option ${isSelected ? 'deck-option-selected' : ''}"
+        data-action="select-deck"
+        data-deck-id="${id}"
+        style="
+          padding: 6px 14px;
+          border: 1px solid ${isSelected ? '#3b82f6' : 'rgba(255,255,255,0.3)'};
+          border-radius: 6px;
+          background: ${isSelected ? 'rgba(59, 130, 246, 0.2)' : 'transparent'};
+          cursor: pointer;
+          text-align: center;
+        "
+      >
+        <div style="font-weight: 600; font-size: 13px; color: ${isSelected ? '#60a5fa' : 'rgba(255,255,255,0.8)'};">
+          ${isSelected ? '✓ ' : ''}${deck.name}
+        </div>
+      </button>
+    `;
+  }).join('');
+
   return `
     <div class="screen-setup" style="align-items: flex-start; padding-top: 40px;">
       <div class="setup-container" style="max-width: 1400px;">
@@ -564,12 +792,18 @@ export function renderSetupScreen() {
         <p style="color:#94A3B8; margin-bottom:20px; font-size:16px;">
           Experience the fragility of the Dutch construction labor market.
         </p>
-        
+
+        <!-- Deck Selector -->
+        <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+          <span style="font-size: 13px; color: rgba(255,255,255,0.6);">🃏 Deck:</span>
+          ${deckOptions}
+        </div>
+
         <h2 style="font-size:24px; margin-bottom:20px;">👥 The Actors</h2>
         <div class="role-cards-grid" style="margin-bottom: 30px;">
-          ${ROLE_CARDS.map(role => renderRoleCard(role)).join("")}
+          ${ROLE_CARDS.map(role => renderRoleCardClickable(role)).join("")}
         </div>
-        
+
         <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
           <button
             class="btn btn-primary"
@@ -585,7 +819,7 @@ export function renderSetupScreen() {
 }
 
 // Render collapsed screen
-export function renderCollapsedScreen(history, ecosystemHealth) {
+export function renderCollapsedScreen(history, _ecosystemHealth) {
   const round1 = history.find(h => h.round === 1);
   const round2 = history.find(h => h.round === 2);
 
@@ -644,7 +878,7 @@ export function renderCollapsedScreen(history, ecosystemHealth) {
 }
 
 // Render victory screen
-export function renderVictoryScreen(history, ecosystemHealth) {
+export function renderVictoryScreen(history, _ecosystemHealth) {
   const round1 = history.find(h => h.round === 1);
   const round2 = history.find(h => h.round === 2);
 

@@ -29,7 +29,7 @@ export const ROLE_CARDS = [
     behaviorPattern: [
       "Wants workers NOW",
       "Avoids training costs",
-      "Expects others (UWV, ROC, Sector Bodies) to fund training"
+      "Expects others (UWV, Educators, Sector Bodies) to fund training"
     ],
     systemInfluence: "Medium — important for hiring, weak in funding"
   },
@@ -37,7 +37,7 @@ export const ROLE_CARDS = [
     id: 2,
     name: "Large Employer",
     subtitle: "Big Construction/Installation Firm (≥250 employees)",
-    color: "#3D405B",
+    color: "#6366f1",
     icon: "🏢",
     responsibilities: [
       "Provide stable employment",
@@ -69,7 +69,7 @@ export const ROLE_CARDS = [
     id: 3,
     name: "Sector Organisation",
     subtitle: "WijTechniek / Bouwend Nederland / Techniek Nederland",
-    color: "#81B29A",
+    color: "#14b8a6",
     icon: "🤝",
     responsibilities: [
       "Coordinate sector-wide initiatives",
@@ -101,8 +101,8 @@ export const ROLE_CARDS = [
     id: 4,
     name: "Servicepunt",
     subtitle: "Intermediary Matching Organization",
-    color: "#F2CC8F",
-    icon: "🤝",
+    color: "#eab308",
+    icon: "🔗",
     responsibilities: [
       "Match jobseekers to employers",
       "Coordinate training pathways",
@@ -133,7 +133,7 @@ export const ROLE_CARDS = [
     id: 5,
     name: "UWV (Government)",
     subtitle: "Labour Agency (Subsidies & Regulations)",
-    color: "#6B7FD7",
+    color: "#3b82f6",
     icon: "🏛️",
     responsibilities: [
       "Release subsidies and retraining support",
@@ -163,9 +163,9 @@ export const ROLE_CARDS = [
   },
   {
     id: 6,
-    name: "ROC Educator",
+    name: "Educator",
     subtitle: "Education & Training Provider",
-    color: "#F97316",
+    color: "#22c55e",
     icon: "🎓",
     responsibilities: [
       "Train workers",
@@ -200,42 +200,42 @@ export const ACTORS = {
     id: "SME",
     name: "Small Employer (SME)",
     icon: "🏗️",
-    color: "#E07A5F",
+    color: "#f97316",
     description: "Low budget, high labor need, risk-averse, dependent on subsidies",
   },
   LARGE: {
     id: "LARGE",
     name: "Large Employer",
     icon: "🏢",
-    color: "#3D405B",
+    color: "#6366f1",
     description: "Financially strong, high standards, slow to collaborate",
   },
   EDUCATOR: {
     id: "EDUCATOR",
-    name: "Public Educator (ROC/HvA)",
+    name: "Educator",
     icon: "🎓",
-    color: "#81B29A",
+    color: "#22c55e",
     description: "Depends on government funding, slow to scale training",
   },
   INTERMEDIARY: {
     id: "INTERMEDIARY",
     name: "Servicepunt (Intermediary)",
-    icon: "🤝",
-    color: "#F2CC8F",
+    icon: "🔗",
+    color: "#eab308",
     description: "Connects jobseekers → training → employers, project-funded",
   },
   UWV: {
     id: "UWV",
     name: "UWV / Government",
     icon: "🏛️",
-    color: "#6B7FD7",
+    color: "#3b82f6",
     description: "Controls subsidies & regulations, bureaucratic",
   },
   SECTOR: {
     id: "SECTOR",
     name: "Sector Organisation",
     icon: "🤝",
-    color: "#81B29A",
+    color: "#14b8a6",
     description: "Coordinates sector-wide initiatives, moderate funding, strategic thinker",
   },
 };

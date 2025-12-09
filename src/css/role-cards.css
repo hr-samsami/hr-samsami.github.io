@@ -100,6 +100,7 @@
 .role-column {
   display: flex;
   flex-direction: column;
+  padding: 0 8px;
 }
 
 .role-column-title {
@@ -109,6 +110,7 @@
   color: #374151;
   margin-bottom: 6px;
   letter-spacing: 0.3px;
+  text-align: left;
 }
 
 .role-column-list {
@@ -121,6 +123,7 @@
   font-size: 10px;
   color: var(--text-secondary);
   line-height: 1.3;
+  text-align: left;
 }
 
 /* Bottom section with funding power and influence */

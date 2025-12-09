@@ -52,3 +52,48 @@ export function formatNumber(num) {
 export function capitalizeFirst(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
+
+// Calculate system health based on decision card colors
+// Returns: { status: 'green'|'yellow'|'red', counts: {green, yellow, red}, label, color }
+export function calculateSystemHealth(selectedDecisions) {
+  const counts = { green: 0, yellow: 0, red: 0 };
+
+  // Count each color type from selected decisions
+  Object.values(selectedDecisions).forEach(decision => {
+    if (decision && decision.type) {
+      const type = decision.type.toLowerCase();
+      if (counts[type] !== undefined) {
+        counts[type]++;
+      }
+    }
+  });
+
+  const total = counts.green + counts.yellow + counts.red;
+
+  // Determine system status based on color distribution
+  // Priority: Red cards have high negative impact
+  // - 2+ red cards → System is RED (critical)
+  // - Majority green (more green than yellow+red) → System is GREEN
+  // - Otherwise → System is YELLOW
+  let status, label, color;
+
+  if (counts.red >= 2) {
+    status = 'red';
+    label = 'Collapsed';
+    color = '#dc3545';
+  } else if (counts.green > counts.yellow + counts.red) {
+    status = 'green';
+    label = 'Sustainable';
+    color = '#28a745';
+  } else if (counts.green >= counts.yellow && counts.red <= 1) {
+    status = 'yellow';
+    label = 'Fragile';
+    color = '#ffc107';
+  } else {
+    status = 'yellow';
+    label = 'Fragile';
+    color = '#ffc107';
+  }
+
+  return { status, counts, label, color, total };
+}
