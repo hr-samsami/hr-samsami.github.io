@@ -1,6 +1,6 @@
 // Rendering functions for the game UI
 import { ACTORS, ROLE_CARDS } from './data/actors.js';
-import { AVAILABLE_DECKS, getCurrentDeck, getCurrentDeckId } from './data/decisions.js';
+import { AVAILABLE_DECKS, getCurrentDeck, getCurrentDeckId, getActorDecision } from './data/decisions.js';
 import { clampHealth, calculateSystemHealth } from './helpers.js';
 
 // Render event title bar (clickable, for results page)
@@ -25,65 +25,64 @@ function renderEventTitleBar(event, round) {
   `;
 }
 
-// Generate summary analysis based on decisions
+// Generate summary analysis based on decisions (Yes/No system)
 function generateSummaryAnalysis(selectedDecisions, systemHealth, round) {
   const summaryItems = [];
 
-  // Analyze decisions by type
-  const redDecisions = Object.entries(selectedDecisions).filter(([, d]) => d.type.toLowerCase() === 'red');
-  const yellowDecisions = Object.entries(selectedDecisions).filter(([, d]) => d.type.toLowerCase() === 'yellow');
-  const greenDecisions = Object.entries(selectedDecisions).filter(([, d]) => d.type.toLowerCase() === 'green');
+  // Analyze decisions by type (Yes = green, No = red)
+  const noDecisions = Object.entries(selectedDecisions).filter(([, d]) => d.type.toLowerCase() === 'red');
+  const yesDecisions = Object.entries(selectedDecisions).filter(([, d]) => d.type.toLowerCase() === 'green');
 
   // Main status explanation
   if (systemHealth.status === 'red') {
     summaryItems.push({
       type: 'negative',
       icon: '🚫',
-      title: 'System Collapsed: Too Many Blockers',
-      desc: `${redDecisions.length} actors chose "Wait & See" or blocking decisions. When 2 or more actors refuse to commit, the ecosystem cannot function.`
+      title: 'System Collapsed: Too Many "No" Responses',
+      desc: `${noDecisions.length} actors said "No" with conditions. When 2 or more actors cannot commit, the ecosystem cannot function without negotiation.`
     });
 
-    // List who blocked
-    if (redDecisions.length > 0) {
-      const blockers = redDecisions.map(([actorId]) => `${ACTORS[actorId].icon} ${ACTORS[actorId].name}`).join(', ');
+    // List who said No and their conditions
+    if (noDecisions.length > 0) {
+      const blockers = noDecisions.map(([actorId]) => `${ACTORS[actorId].icon} ${ACTORS[actorId].name}`).join(', ');
       summaryItems.push({
         type: 'negative',
         icon: '⛔',
-        title: 'Blocking Actors',
-        desc: `${blockers} chose not to invest or collaborate, breaking critical ecosystem flows.`
+        title: 'Actors with Conditions',
+        desc: `${blockers} said "No" - they have conditions that must be met before they can participate.`
       });
     }
   } else if (systemHealth.status === 'yellow') {
     summaryItems.push({
       type: 'warning',
       icon: '⚠️',
-      title: 'System Fragile: Insufficient Commitment',
-      desc: `The ecosystem is unstable. While not collapsed, there aren't enough strong "Invest" decisions to create sustainable flows.`
+      title: 'System Fragile: Mixed Responses',
+      desc: `Some actors said "Yes" but others have conditions. The system needs negotiation to become sustainable.`
     });
 
-    if (yellowDecisions.length > 0) {
+    if (noDecisions.length > 0) {
       summaryItems.push({
         type: 'warning',
         icon: '🤝',
-        title: 'Conditional Collaborators',
-        desc: `${yellowDecisions.length} actors chose "Collaborate" - they're willing to participate but only under certain conditions. This creates dependencies and fragility.`
+        title: 'Negotiation Needed',
+        desc: `${noDecisions.length} actors have conditions that could be met through negotiation. Can the "Yes" actors help meet these conditions?`
       });
     }
   } else {
     summaryItems.push({
       type: 'positive',
       icon: '✅',
-      title: 'System Sustainable: Strong Investment',
-      desc: `Majority of actors chose to invest strongly. The ecosystem has enough commitment to function reliably.`
+      title: 'System Sustainable: Strong Commitment',
+      desc: `Majority of actors said "Yes" without conditions. The ecosystem has enough unconditional commitment to function.`
     });
 
-    if (greenDecisions.length > 0) {
-      const investors = greenDecisions.map(([actorId]) => `${ACTORS[actorId].icon} ${ACTORS[actorId].name}`).join(', ');
+    if (yesDecisions.length > 0) {
+      const supporters = yesDecisions.map(([actorId]) => `${ACTORS[actorId].icon} ${ACTORS[actorId].name}`).join(', ');
       summaryItems.push({
         type: 'positive',
         icon: '💪',
-        title: 'Strong Contributors',
-        desc: `${investors} made strong investment decisions, providing the foundation for ecosystem stability.`
+        title: 'Unconditional Supporters',
+        desc: `${supporters} committed without conditions, providing the foundation for ecosystem stability.`
       });
     }
   }
@@ -146,17 +145,17 @@ function renderSummarySection(selectedDecisions, systemHealth, round) {
             <div class="actor-contributions">
               ${Object.entries(selectedDecisions).map(([actorId, d]) => {
                 const actor = ACTORS[actorId];
-                const cardColor = d.type.toLowerCase();
-                const emoji = colorEmoji[cardColor] || '⚪';
-                return `
-                  <div class="actor-contribution">
-                    <div class="actor-contribution-icon">${actor.icon}</div>
-                    <div class="actor-contribution-info">
-                      <div class="actor-contribution-name">${actor.name}</div>
-                      <div class="actor-contribution-decision">
-                        ${emoji} ${d.title}
+                const isYes = d.type.toLowerCase() === 'green';
                       </div>
                     </div>
+                    ${!isYes && conditions.length > 0 ? `
+                      <div class="actor-conditions" style="margin-left: 40px; margin-top: 8px; padding: 8px; background: #fef3c7; border-radius: 6px; font-size: 11px;">
+                        <div style="font-weight: 600; color: #92400e; margin-bottom: 4px;">Conditions to change to YES:</div>
+                        <ul style="margin: 0; padding-left: 16px; color: #78350f;">
+                          ${conditions.map(c => `<li>${c.text}</li>`).join('')}
+                        </ul>
+                      </div>
+                    ` : ''}
                   </div>
                 `;
               }).join('')}
@@ -170,7 +169,6 @@ function renderSummarySection(selectedDecisions, systemHealth, round) {
 
 // Render ecosystem health bar
 export function renderEcosystemHealthBar(value) {
-  const safeValue = clampHealth(value);
   const esi = calcESI({ SME: { health: value }, LARGE: { health: value }, EDUCATOR: { health: value }, INTERMEDIARY: { health: value }, UWV: { health: value } });
   const status = getESIStatus(esi);
 
@@ -604,46 +602,101 @@ export function renderMainScreen(state) {
 
     if (selectedActor) {
       const actor = ACTORS[selectedActor];
-      const decisions = shuffledDecisions[selectedActor] || [];
+      const actorDecision = getActorDecision(selectedActor, round);
       const currentSelected = selectedDecisions[selectedActor];
 
-      eventSection += `
-        <div class="selected-actor-card" style="margin-top: 16px; border: 2px solid ${actor.color}20;">
-          <div class="selected-actor-header">
-            <span style="font-size:28px;">${actor.icon}</span>
-            <div>
-              <h3 class="selected-actor-name" style="color:${actor.color};">
-                ${actor.name}
-              </h3>
-              <p class="selected-actor-desc">${actor.description}</p>
-            </div>
-          </div>
-          <div class="decision-grid">
-            ${decisions
-              .map((d) => {
-                const selected = currentSelected && currentSelected.id === d.id;
-                const borderColor = selected ? actor.color : "#E5E7EB";
-                const bgColor = selected ? `${actor.color}10` : "#FFFFFF";
+      // New Yes/No UI
+      if (actorDecision) {
+        const yesSelected = currentSelected && currentSelected.type === 'green';
+        const noSelected = currentSelected && currentSelected.type === 'red';
 
-                return `
-                  <button
-                    class="decision-card"
-                    style="border-color:${borderColor}; background:${bgColor};"
-                    data-action="select-decision"
-                    data-actor-id="${actor.id}"
-                    data-decision-id="${d.id}"
-                  >
-                    <div class="decision-header">
-                      <span class="decision-title">${d.title}</span>
+        eventSection += `
+          <div class="selected-actor-card" style="margin-top: 16px; border: 2px solid ${actor.color}20;">
+            <div class="selected-actor-header">
+              <span style="font-size:28px;">${actor.icon}</span>
+              <div>
+                <h3 class="selected-actor-name" style="color:${actor.color};">
+                  ${actor.name}
+                </h3>
+                <p class="selected-actor-desc">${actor.description}</p>
+              </div>
+            </div>
+
+            <!-- Question -->
+            <div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+              <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                ${actorDecision.question}
+              </div>
+              <div style="font-size: 13px; color: #6b7280;">
+                Commitment: <strong>${actorDecision.commitment}</strong>
+              </div>
+            </div>
+
+            <!-- Yes/No Buttons -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <!-- YES Button -->
+              <button
+                class="decision-card"
+                style="border: 3px solid ${yesSelected ? '#22c55e' : '#E5E7EB'}; background: ${yesSelected ? '#dcfce7' : '#FFFFFF'}; padding: 20px;"
+                data-action="select-decision"
+                data-actor-id="${actor.id}"
+                data-decision-id="${actorDecision.yes.id}"
+              >
+                <div style="text-align: center;">
+                  <div style="font-size: 48px; margin-bottom: 8px;">✅</div>
+                  <div style="font-size: 24px; font-weight: 700; color: #22c55e; margin-bottom: 8px;">YES</div>
+                  <div style="font-size: 14px; font-weight: 600; color: #166534; margin-bottom: 8px;">${actorDecision.yes.title}</div>
+                  <p style="font-size: 12px; color: #6b7280; margin: 0;">${actorDecision.yes.description}</p>
+                </div>
+              </button>
+
+              <!-- NO Button -->
+              <button
+                class="decision-card"
+                style="border: 3px solid ${noSelected ? '#ef4444' : '#E5E7EB'}; background: ${noSelected ? '#fee2e2' : '#FFFFFF'}; padding: 20px;"
+                data-action="select-decision"
+                data-actor-id="${actor.id}"
+                data-decision-id="${actorDecision.no.id}"
+              >
+                <div style="text-align: center;">
+                  <div style="font-size: 48px; margin-bottom: 8px;">❌</div>
+                  <div style="font-size: 24px; font-weight: 700; color: #ef4444; margin-bottom: 8px;">NO</div>
+                  <div style="font-size: 14px; font-weight: 600; color: #991b1b; margin-bottom: 8px;">${actorDecision.no.title}</div>
+                  <p style="font-size: 12px; color: #6b7280; margin: 0;">${actorDecision.no.description}</p>
+                </div>
+              </button>
+            </div>
+
+            <!-- Conditions (shown when NO is selected) -->
+            ${noSelected && actorDecision.no.conditions ? `
+              <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 16px;">
+                <div style="font-size: 14px; font-weight: 700; color: #92400e; margin-bottom: 12px;">
+                  ⚠️ Conditions to change my answer to YES:
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  ${actorDecision.no.conditions.map(c => `
+                    <div style="display: flex; align-items: flex-start; gap: 8px; background: #fff; padding: 10px; border-radius: 6px;">
+                      <span style="font-size: 14px;">${c.type === 'funding' ? '💰' : c.type === 'expertise' ? '🎓' : '📋'}</span>
+                      <div>
+                        <div style="font-size: 13px; color: #374151;">${c.text}</div>
+                        ${c.canBeMet && c.canBeMet.length > 0 ? `
+                          <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                            Can be met by: ${c.canBeMet.map(actorId => {
+                              if (actorId === 'WILDCARD') return '🃏 Wild Card';
+                              const a = ACTORS[actorId];
+                              return a ? `${a.icon} ${a.name}` : actorId;
+                            }).join(', ')}
+                          </div>
+                        ` : ''}
+                      </div>
                     </div>
-                    <p class="decision-desc">${d.description}</p>
-                  </button>
-                `;
-              })
-              .join("")}
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
           </div>
-        </div>
-      `;
+        `;
+      }
     }
 
     eventSection += `
@@ -684,22 +737,19 @@ export function renderMainScreen(state) {
             </div>
           </div>
 
-          <!-- Color breakdown -->
-          <div style="display: flex; justify-content: center; gap: 24px; margin-top: 16px; padding: 12px; background: #f9fafb; border-radius: 8px;">
+          <!-- Yes/No breakdown -->
+          <div style="display: flex; justify-content: center; gap: 48px; margin-top: 16px; padding: 16px; background: #f9fafb; border-radius: 8px;">
             <div style="text-align: center;">
-              <div style="font-size: 24px;">🟢</div>
-              <div style="font-size: 20px; font-weight: 700; color: #28a745;">${systemHealth.counts.green}</div>
-              <div style="font-size: 11px; color: #6b7280;">Invest</div>
+              <div style="font-size: 32px;">✅</div>
+              <div style="font-size: 28px; font-weight: 700; color: #22c55e;">${systemHealth.counts.green}</div>
+              <div style="font-size: 13px; color: #6b7280; font-weight: 600;">YES</div>
+              <div style="font-size: 11px; color: #9ca3af;">Unconditional</div>
             </div>
             <div style="text-align: center;">
-              <div style="font-size: 24px;">🟡</div>
-              <div style="font-size: 20px; font-weight: 700; color: #ffc107;">${systemHealth.counts.yellow}</div>
-              <div style="font-size: 11px; color: #6b7280;">Collaborate</div>
-            </div>
-            <div style="text-align: center;">
-              <div style="font-size: 24px;">🔴</div>
-              <div style="font-size: 20px; font-weight: 700; color: #dc3545;">${systemHealth.counts.red}</div>
-              <div style="font-size: 11px; color: #6b7280;">Wait/Block</div>
+              <div style="font-size: 32px;">❌</div>
+              <div style="font-size: 28px; font-weight: 700; color: #ef4444;">${systemHealth.counts.red}</div>
+              <div style="font-size: 13px; color: #6b7280; font-weight: 600;">NO</div>
+              <div style="font-size: 11px; color: #9ca3af;">With Conditions</div>
             </div>
           </div>
 

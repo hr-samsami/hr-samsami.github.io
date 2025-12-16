@@ -6,6 +6,7 @@ export const ROLE_CARDS = [
     subtitle: "Small Construction Company (≤50 employees)",
     color: "#E07A5F",
     icon: "🏗️",
+    offers: "Workplaces for entry-level workers",
     responsibilities: [
       "Hire entry-level workers",
       "Provide practical on-site supervision",
@@ -39,6 +40,7 @@ export const ROLE_CARDS = [
     subtitle: "Big Construction/Installation Firm (≥250 employees)",
     color: "#6366f1",
     icon: "🏢",
+    offers: "Stable employment & training investment",
     responsibilities: [
       "Provide stable employment",
       "Influence hiring standards",
@@ -71,6 +73,7 @@ export const ROLE_CARDS = [
     subtitle: "WijTechniek / Bouwend Nederland / Techniek Nederland",
     color: "#14b8a6",
     icon: "🤝",
+    offers: "Coordination & sector-wide initiatives",
     responsibilities: [
       "Coordinate sector-wide initiatives",
       "Support companies with funding schemes",
@@ -103,6 +106,7 @@ export const ROLE_CARDS = [
     subtitle: "Intermediary Matching Organization",
     color: "#eab308",
     icon: "🔗",
+    offers: "Candidates & matching services",
     responsibilities: [
       "Match jobseekers to employers",
       "Coordinate training pathways",
@@ -131,10 +135,11 @@ export const ROLE_CARDS = [
   },
   {
     id: 5,
-    name: "UWV (Government)",
+    name: "UWV",
     subtitle: "Labour Agency (Subsidies & Regulations)",
     color: "#3b82f6",
     icon: "🏛️",
+    offers: "Subsidies & regulations",
     responsibilities: [
       "Release subsidies and retraining support",
       "Regulate eligibility",
@@ -146,7 +151,6 @@ export const ROLE_CARDS = [
       "Can stimulate training or hiring through incentives"
     ],
     weaknesses: [
-      "Bureaucratic",
       "Slow rule changes",
       "Funding often temporary"
     ],
@@ -159,7 +163,7 @@ export const ROLE_CARDS = [
       "Uses subsidies to influence other actors",
       "Risk of sudden rule changes"
     ],
-    systemInfluence: "Very High — controls funding environment"
+    systemInfluence: "Medium — controls funding environment"
   },
   {
     id: 6,
@@ -167,6 +171,7 @@ export const ROLE_CARDS = [
     subtitle: "Education & Training Provider",
     color: "#22c55e",
     icon: "🎓",
+    offers: "Education & training",
     responsibilities: [
       "Train workers",
       "Provide instruction",
@@ -190,7 +195,7 @@ export const ROLE_CARDS = [
       "Wants stable funding",
       "Cannot expand without structural backing"
     ],
-    systemInfluence: "Medium-High — they produce workforce supply"
+    systemInfluence: "Low — they produce workforce supply"
   }
 ];
 
@@ -226,10 +231,10 @@ export const ACTORS = {
   },
   UWV: {
     id: "UWV",
-    name: "UWV / Government",
+    name: "UWV",
     icon: "🏛️",
     color: "#3b82f6",
-    description: "Controls subsidies & regulations, bureaucratic",
+    description: "Controls subsidies & regulations",
   },
   SECTOR: {
     id: "SECTOR",

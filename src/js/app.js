@@ -1,7 +1,7 @@
 // Main application entry point
 import { ACTORS, ROLE_CARDS } from './data/actors.js';
 import { EVENT_CARDS } from './data/events.js';
-import { DECISION_CARDS, setCurrentDeck } from './data/decisions.js';
+import { DECISION_CARDS, setCurrentDeck, getActorDecision } from './data/decisions.js';
 import { clampHealth, calculateSystemHealth } from './helpers.js';
 import {
   renderSetupScreen,
@@ -197,11 +197,21 @@ function selectActor(actorId) {
   render();
 }
 
-// Select decision
+// Select decision (Yes/No system)
 function selectDecision(actorId, decisionId) {
-  const eventDecisions = getEventDecisions();
   const parsedDecisionId = parseInt(decisionId, 10);
-  const decision = eventDecisions[actorId].find((d) => d.id === parsedDecisionId) || null;
+  const actorDecision = getActorDecision(actorId, round);
+
+  if (!actorDecision) return;
+
+  // Find if it's the yes or no decision
+  let decision = null;
+  if (actorDecision.yes.id === parsedDecisionId) {
+    decision = actorDecision.yes;
+  } else if (actorDecision.no.id === parsedDecisionId) {
+    decision = actorDecision.no;
+  }
+
   if (!decision) return;
   selectedDecisions = { ...selectedDecisions, [actorId]: decision };
   render();
