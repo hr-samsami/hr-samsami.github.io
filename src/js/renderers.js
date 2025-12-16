@@ -146,6 +146,19 @@ function renderSummarySection(selectedDecisions, systemHealth, round) {
               ${Object.entries(selectedDecisions).map(([actorId, d]) => {
                 const actor = ACTORS[actorId];
                 const isYes = d.type.toLowerCase() === 'green';
+                const emoji = isYes ? '✅' : '❌';
+                const label = isYes ? 'YES' : 'NO';
+                const conditions = d.conditions || [];
+
+                return `
+                  <div class="actor-contribution" style="flex-direction: column; align-items: flex-start;">
+                    <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                      <div class="actor-contribution-icon">${actor.icon}</div>
+                      <div class="actor-contribution-info" style="flex: 1;">
+                        <div class="actor-contribution-name">${actor.name}</div>
+                        <div class="actor-contribution-decision" style="color: ${isYes ? '#22c55e' : '#ef4444'};">
+                          ${emoji} ${label}: ${d.title}
+                        </div>
                       </div>
                     </div>
                     ${!isYes && conditions.length > 0 ? `
@@ -169,6 +182,7 @@ function renderSummarySection(selectedDecisions, systemHealth, round) {
 
 // Render ecosystem health bar
 export function renderEcosystemHealthBar(value) {
+  const safeValue = clampHealth(value);
   const esi = calcESI({ SME: { health: value }, LARGE: { health: value }, EDUCATOR: { health: value }, INTERMEDIARY: { health: value }, UWV: { health: value } });
   const status = getESIStatus(esi);
 
